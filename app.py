@@ -25,20 +25,19 @@ def upload():
 
     plt.figure(figsize=(7, 7))
     
-    # Define custom colors: green for Positive, yellow for Neutral, red for Negative
     colors = []
     for label in sentiment_counts.index:
         if label == 'Positive':
-            colors.append('#10B981')  # Green
+            colors.append('#10B981')  
         elif label == 'Neutral':
-            colors.append('#FBBF24')  # Yellow
+            colors.append('#FBBF24')  
         elif label == 'Negative':
-            colors.append('#EF4444')  # Red
+            colors.append('#EF4444')  
     
     plt.pie(
         sentiment_counts.values,
         labels=sentiment_counts.index,
-        colors=colors,  # Add colors parameter
+        colors=colors,  
         autopct='%1.1f%%',
         startangle=140
     )
