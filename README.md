@@ -106,8 +106,7 @@ sentiment-analysis-flask/
 │   ├── __pycache__/           
 │   ├── sentiment.py           
 │   └── text_processing.py     
-
-
+```
 ---
 
 ## ⚙️ Installation & Setup  
