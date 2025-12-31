@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Customer Sentiment Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --primary: #4361ee;
+            --primary-hover: #3b5bdb;
+            --border: #e0e0e0;
+            --input-bg: #fafafa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .upload-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            background: -webkit-linear-gradient(45deg, #4361ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--input-bg);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-input:hover+.file-upload-label,
+        .file-upload-input:focus+.file-upload-label {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            fill: currentColor;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .upload-hint {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .file-name-display {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 6px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .note-box {
+            margin-top: 20px;
+            background: #eef2ff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="upload-card">
+        <h2>Customer Sentiment Analysis</h2>
+        <p class="subtitle">Upload your customer reviews to generate an interactive sentiment dashboard.</p>
+
+        <form action="/upload" method="post" enctype="multipart/form-data">
+
+            <div class="file-upload-wrapper">
+                <input type="file" name="file" id="fileInput" class="file-upload-input" accept=".csv" required
+                    onchange="updateFileName()">
+
+                <label for="fileInput" class="file-upload-label">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path
+                            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                    </svg>
+                    <span class="upload-text">Click to browse or drag file here</span>
+                    <span class="upload-hint">Supports .csv files</span>
+                </label>
+            </div>
+
+            <div id="fileName" class="file-name-display">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                </svg>
+                <span id="fileText"></span>
+            </div>
+
+          
+
+         
+            <button type="submit" class="submit-btn">Analyze Data</button>
+        </form>
+    </div>
+
+    <script>
+        function updateFileName() {
+            const input = document.getElementById('fileInput');
+            const fileNameDisplay = document.getElementById('fileName');
+            const fileText = document.getElementById('fileText');
+
+            if (input.files && input.files.length > 0) {
+                fileText.textContent = input.files[0].name;
+                fileNameDisplay.style.display = 'flex';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

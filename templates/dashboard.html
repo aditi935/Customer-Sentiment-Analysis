@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Customer Sentiment Analysis </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-light: #666666;
+            --primary: #4361ee;
+            --border: #e0e0e0;
+
+            --pos-bg: #d1fae5;
+            --pos-text: #065f46;
+            --neu-bg: #f3f4f6;
+            --neu-text: #4b5563;
+            --neg-bg: #fee2e2;
+            --neg-text: #991b1b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 25px;
+            line-height: 1.6;
+            font-size: 17px;
+        }
+
+        h2,
+        h3,
+        h4 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+            padding-bottom: 8px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 6px solid transparent;
+        }
+
+        .stat-card h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-top: 8px;
+            line-height: 1;
+        }
+
+        .stat-card.total {
+            border-left-color: var(--primary);
+        }
+
+        .stat-card.total .number {
+            color: var(--primary);
+        }
+
+        .stat-card.pos {
+            border-left-color: var(--pos-text);
+        }
+
+        .stat-card.pos .number {
+            color: var(--pos-text);
+        }
+
+        .stat-card.neu {
+            border-left-color: var(--neu-text);
+        }
+
+        .stat-card.neu .number {
+            color: var(--neu-text);
+        }
+
+        .stat-card.neg {
+            border-left-color: var(--neg-text);
+        }
+
+        .stat-card.neg .number {
+            color: var(--neg-text);
+        }
+
+        .top-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+            height: 550px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .review-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #eee;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            min-width: 600px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background-color: #f8f9fa;
+            color: #444;
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            word-wrap: break-word;
+            font-size: 1rem;
+        }
+
+        tbody tr {
+            content-visibility: auto;
+            contain-intrinsic-size: 60px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .row-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .filter-title {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .filter-title svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: currentColor;
+        }
+
+        .filter-labels {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-labels label {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #555;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-labels label:hover {
+            background-color: #e2e2e2;
+        }
+
+        #filter-all:checked~.filter-container .filter-labels label[for="filter-all"],
+        #filter-pos:checked~.filter-container .filter-labels label[for="filter-pos"],
+        #filter-neu:checked~.filter-container .filter-labels label[for="filter-neu"],
+        #filter-neg:checked~.filter-container .filter-labels label[for="filter-neg"] {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        #filter-pos:checked~.filter-container .filter-labels label[for="filter-pos"] {
+            background-color: var(--pos-text);
+        }
+
+        #filter-neg:checked~.filter-container .filter-labels label[for="filter-neg"] {
+            background-color: var(--neg-text);
+        }
+
+        #filter-neu:checked~.filter-container .filter-labels label[for="filter-neu"] {
+            background-color: #64748b;
+        }
+
+        #filter-pos:checked~.review-wrapper #reviewsTable tr:not([data-sentiment="Positive"]) {
+            display: none;
+        }
+
+        #filter-neu:checked~.review-wrapper #reviewsTable tr:not([data-sentiment="Neutral"]) {
+            display: none;
+        }
+
+        #filter-neg:checked~.review-wrapper #reviewsTable tr:not([data-sentiment="Negative"]) {
+            display: none;
+        }
+
+        .words-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .words-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 50px;
+        }
+
+        .word-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .word-list li {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.1s;
+            border: 1px solid transparent;
+        }
+
+        .word-list li:hover {
+            transform: scale(1.05);
+        }
+
+        .word-list li .count {
+            margin-left: 10px;
+            font-size: 0.85em;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .pos-list li {
+            background-color: var(--pos-bg);
+            color: var(--pos-text);
+            border-color: rgba(6, 95, 70, 0.1);
+        }
+
+        .neu-list li {
+            background-color: var(--neu-bg);
+            color: var(--neu-text);
+            border-color: rgba(75, 85, 99, 0.1);
+        }
+
+        .neg-list li {
+            background-color: var(--neg-bg);
+            color: var(--neg-text);
+            border-color: rgba(153, 27, 27, 0.1);
+        }
+
+        /* Table Badges */
+        .sentiment-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr[data-sentiment="Positive"] .sentiment-badge {
+            background-color: var(--pos-bg);
+            color: var(--pos-text);
+        }
+
+        tr[data-sentiment="Neutral"] .sentiment-badge {
+            background-color: var(--neu-bg);
+            color: var(--neu-text);
+        }
+
+        tr[data-sentiment="Negative"] .sentiment-badge {
+            background-color: var(--neg-bg);
+            color: var(--neg-text);
+        }
+
+        .modal-wrapper {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-wrapper:target {
+            display: flex;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            cursor: default;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1001;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            text-decoration: none;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Data Key-Value Styles */
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .data-row {
+            margin-bottom: 20px;
+        }
+
+        .data-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .data-value {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .modal-badge.Positive {
+            background-color: var(--pos-bg);
+            color: var(--pos-text);
+        }
+
+        .modal-badge.Neutral {
+            background-color: var(--neu-bg);
+            color: var(--neu-text);
+        }
+
+        .modal-badge.Negative {
+            background-color: var(--neg-bg);
+            color: var(--neg-text);
+        }
+
+        @media (max-width: 1000px) {
+            .overview-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .top-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .review-wrapper {
+                max-height: 500px;
+            }
+
+            .words-grid {
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 15px;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .words-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .stat-card .number {
+                font-size: 2.2rem;
+            }
+
+            td,
+            th {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <h2>Sentiment Analytics Dashboard</h2>
+
+        <div class="overview-grid">
+            <div class="stat-card total">
+                <h4>Total Reviews</h4>
+                <div class="number">{{ total_count }}</div>
+            </div>
+            <div class="stat-card pos">
+                <h4>Positive</h4>
+                <div class="number">{{ sentiment_counts.get('Positive', 0) }}</div>
+            </div>
+            <div class="stat-card neu">
+                <h4>Neutral</h4>
+                <div class="number">{{ sentiment_counts.get('Neutral', 0) }}</div>
+            </div>
+            <div class="stat-card neg">
+                <h4>Negative</h4>
+                <div class="number">{{ sentiment_counts.get('Negative', 0) }}</div>
+            </div>
+        </div>
+
+        <div class="top-grid">
+            <div class="card" style="align-items: center; justify-content: center;">
+                <h3 style="align-self: flex-start; margin-bottom: 15px;">Sentiment Distribution</h3>
+                <img src="{{ url_for('static', filename='sentiment_chart.png') }}" alt="Sentiment Chart"
+                    style="max-width: 100%; height: auto; max-height: 400px;">
+            </div>
+
+            <div class="card">
+                <input type="radio" name="sentiment" id="filter-all" checked>
+                <input type="radio" name="sentiment" id="filter-pos">
+                <input type="radio" name="sentiment" id="filter-neu">
+                <input type="radio" name="sentiment" id="filter-neg">
+
+                <div style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <h3>Customer Reviews</h3>
+                    <div class="filter-container">
+                        <span class="filter-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                            </svg>
+                            Filter:
+                        </span>
+                        <div class="filter-labels">
+                            <label for="filter-all"><span>All</span></label>
+                            <label for="filter-pos"><span>&#10003;</span> Positive</label>
+                            <label for="filter-neu"><span>&#9675;</span> Neutral</label>
+                            <label for="filter-neg"><span>&#10005;</span> Negative</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-wrapper">
+                    <table id="reviewsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 75%;">Review Content</th>
+                                <th style="width: 25%;">Sentiment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in tables %}
+                            <tr data-sentiment="{{ row.sentiment }}">
+                                <td>
+                                    <a href="#review-{{ loop.index }}" class="row-link">
+                                        {{ row.review_text }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#review-{{ loop.index }}" class="row-link">
+                                        <span class="sentiment-badge">{{ row.sentiment }}</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="font-size: 0.8rem; color: #999; margin-top: 15px; text-align: center;">
+                    Click rows to view details. Displaying latest {{ tables|length }} reviews.
+                </div>
+            </div>
+        </div>
+
+        <div class="words-section">
+            <h3>Words Analysis (Top 30)</h3>
+            <div class="words-grid">
+                <div>
+                    <h4 style="color: var(--pos-text);">Positive Terms</h4>
+                    <ul class="word-list pos-list">
+                        {% for word, count in common_positive %}
+                        <li><span>{{ word }}</span><span class="count">{{ count }}</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--neu-text);">Neutral Terms</h4>
+                    <ul class="word-list neu-list">
+                        {% for word, count in common_neutral %}
+                        <li><span>{{ word }}</span><span class="count">{{ count }}</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--neg-text);">Negative Terms</h4>
+                    <ul class="word-list neg-list">
+                        {% for word, count in common_negative %}
+                        <li><span>{{ word }}</span><span class="count">{{ count }}</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% for row in tables %}
+    <div id="review-{{ loop.index }}" class="modal-wrapper">
+        <a href="#" class="modal-backdrop"></a>
+
+        <div class="modal-content">
+            <a href="#" class="close-btn">&times;</a>
+
+            <h3 class="modal-title">Review Details</h3>
+
+            <div class="data-row">
+                <span class="data-label">Review Sentiment</span>
+                <div class="data-value">
+                    <span class="modal-badge {{ row.sentiment }}">{{ row.sentiment }}</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <span class="data-label">Respective Value (Content)</span>
+                <div class="data-value">
+                    {{ row.review_text }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+
+</html>
