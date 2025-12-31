@@ -84,23 +84,29 @@ Sentiment is calculated using **TextBlob polarity score**
 ```
 sentiment-analysis-flask/
 │
-├── app.py
-├── requirements.txt
-├── README.md
-├── sample_reviews.csv
+├── app.py                     
+├── requirements.txt           
+├── README.md                  
 │
-├── templates/
-│   ├── index.html
-│   ├── dashboard.html
-│   └── review_details.html
+├── data/
+│   └── sample_reviews.csv    
+│
+├── images/
+│   ├── dashboard.png          
+│   └── frontpage.png          
 │
 ├── static/
-│   ├── css/
-│   │   └── style.css
-│   └── images/
-│       ├── frontend.png
-│       └── dashboard.png
-```
+│   └── sentiment_chart.png    
+│
+├── templates/
+│   ├── index.html             
+│   └── dashboard.html         
+│
+├── utils/
+│   ├── __pycache__/           
+│   ├── sentiment.py           
+│   └── text_processing.py     
+
 
 ---
 
