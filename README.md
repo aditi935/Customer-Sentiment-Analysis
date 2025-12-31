@@ -40,10 +40,10 @@ and Jinja templates for dynamic rendering.
 
 🖼️ Application Screenshots\
 🔹 Frontend -- CSV Upload Page\
-![Frontend Page](static/images/frontend.png)
+![Frontend Page](images/frontpage.png)
 
 🔹 Dashboard -- Sentiment Insights\
-![Dashboard Page](static/images/dashboard.png)
+![Dashboard Page](images/dashboard.png)
 
 ✨ Key Features
 
