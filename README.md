@@ -114,8 +114,7 @@ sentiment-analysis-flask/
 
 ### 🔹 Step 1: Clone Repository  
 ```bash
-git clone https://github.com/your-username/sentiment-analysis-flask.git
-cd sentiment-analysis-flask
+git clone https://github.com/aditi935/Customer-Sentiment-Analysis.git
 ```
 
 ### 🔹 Step 2: Create Virtual Environment  
